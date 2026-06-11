@@ -1,0 +1,129 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-ink text-white font-display antialiased;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .grid-overlay {
+    background-image:
+      linear-gradient(rgba(255, 212, 0, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 212, 0, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.25);
+    color: transparent;
+  }
+  .clip-corner {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%);
+  }
+}
+
+/* ── Per-service hover micro-interactions (Section 8) ──────────────── */
+/* All driven by the card's .group:hover. Reliable primitives only:
+   transform, opacity, stroke-dashoffset. */
+
+@keyframes viz-spin { to { transform: rotate(360deg); } }
+@keyframes viz-sweep {
+  0% { transform: translateY(-15px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(15px); opacity: 0; }
+}
+@keyframes viz-spark {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.svc-viz [class*='viz-'] { transition: transform .45s ease, opacity .35s ease, stroke-dashoffset .55s ease; }
+
+/* draw-in lines: set stroke-dasharray inline to the path length */
+.viz-draw { stroke-dashoffset: var(--len, 80); }
+.group:hover .viz-draw { stroke-dashoffset: 0; }
+
+/* rope tightens: slack bow collapses, taut line draws in */
+.viz-slack { transform-origin: center; }
+.group:hover .viz-slack { transform: scaleX(0.15); opacity: 0; }
+.group:hover .viz-anchor { transform: translateY(-3px); }
+
+/* turbine rotates */
+.viz-rotate { transform-origin: 24px 16px; }
+.group:hover .viz-rotate { animation: viz-spin 2.6s linear infinite; }
+
+/* maintenance: layers split to reveal inner */
+.group:hover .viz-up { transform: translateY(-6px); }
+.group:hover .viz-down { transform: translateY(6px); }
+
+/* façade opens into service layers */
+.group:hover .viz-open-l { transform: translateX(-7px); }
+.group:hover .viz-open-r { transform: translateX(7px); }
+.viz-inner { opacity: 0; }
+.group:hover .viz-inner { opacity: 1; }
+
+/* welding spark */
+.group:hover .viz-flare { animation: viz-spark .4s ease-in-out infinite; transform-origin: center; }
+
+/* decom: blocks detach and drift */
+.viz-detach-1, .viz-detach-2 { transform-origin: center; }
+.group:hover .viz-detach-1 { transform: translate(-5px, -5px) rotate(-10deg); }
+.group:hover .viz-detach-2 { transform: translate(6px, -2px) rotate(8deg); }
+
+/* scan beam sweeps the asset */
+.viz-beam { opacity: 0; }
+.group:hover .viz-beam { animation: viz-sweep 1.7s ease-in-out infinite; }
+
+/* training / safety: staggered light-up */
+.viz-step { opacity: 0.22; }
+.group:hover .viz-s1 { opacity: 1; transition-delay: 0s; }
+.group:hover .viz-s2 { opacity: 1; transition-delay: .12s; }
+.group:hover .viz-s3 { opacity: 1; transition-delay: .24s; }
+
+/* Touch fallback (Section 11): tapped card mirrors the :hover state so the
+   per-service animation plays without a pointer. */
+.is-active .viz-draw { stroke-dashoffset: 0; }
+.is-active .viz-slack { transform: scaleX(0.15); opacity: 0; }
+.is-active .viz-anchor { transform: translateY(-3px); }
+.is-active .viz-rotate { animation: viz-spin 2.6s linear infinite; }
+.is-active .viz-up { transform: translateY(-6px); }
+.is-active .viz-down { transform: translateY(6px); }
+.is-active .viz-open-l { transform: translateX(-7px); }
+.is-active .viz-open-r { transform: translateX(7px); }
+.is-active .viz-inner { opacity: 1; }
+.is-active .viz-flare { animation: viz-spark .4s ease-in-out infinite; transform-origin: center; }
+.is-active .viz-detach-1 { transform: translate(-5px, -5px) rotate(-10deg); }
+.is-active .viz-detach-2 { transform: translate(6px, -2px) rotate(8deg); }
+.is-active .viz-beam { animation: viz-sweep 1.7s ease-in-out infinite; }
+.is-active .viz-s1 { opacity: 1; }
+.is-active .viz-s2 { opacity: 1; transition-delay: .12s; }
+.is-active .viz-s3 { opacity: 1; transition-delay: .24s; }
+
+/* Descent stage: pulsing rings on the anchor + work-face markers */
+@keyframes ring-pulse {
+  0% { transform: scale(0.5); opacity: 0.9; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.ring-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ring-pulse 2.4s ease-out infinite;
+}
+
+/* Performance / accessibility: respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+  }
+}
+
