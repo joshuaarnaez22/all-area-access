@@ -57,16 +57,16 @@ export default function ScrollScene() {
       setStage(p < 0.34 ? 0 : p < 0.7 ? 1 : 2)
     }
 
-    // Small screens: the visual stage is removed entirely (hidden md:flex) and
-    // all three steps render expanded — nothing to animate.
-    if (isMobile) return
-
-    // Desktop: progress from live section geometry, applied directly on scroll
-    // (no rAF indirection — one section's worth of work is cheap and this can't wedge).
     const onScroll = () => {
       const r = el.getBoundingClientRect()
       const travel = r.height - window.innerHeight
-      applyProgress(travel > 0 ? Math.min(1, Math.max(0, -r.top / travel)) : 0)
+      const p = travel > 0 ? Math.min(1, Math.max(0, -r.top / travel)) : 0
+      if (isMobile) {
+        // SVG hidden on mobile — just drive the stage text readout.
+        setStage(p < 0.34 ? 0 : p < 0.7 ? 1 : 2)
+      } else {
+        applyProgress(p)
+      }
     }
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
@@ -80,9 +80,9 @@ export default function ScrollScene() {
   return (
     <section
       ref={wrap}
-      className={`relative bg-ink border-t border-steel/40 ${isMobile ? 'py-20' : 'h-[260vh]'}`}
+      className={`relative bg-ink border-t border-steel/40 ${isMobile ? 'h-[220vh]' : 'h-[260vh]'}`}
     >
-      <div className={isMobile ? 'relative' : 'sticky top-0 h-screen overflow-hidden'}>
+      <div className="sticky top-0 h-screen overflow-hidden">
         <div className="absolute inset-0 grid-overlay opacity-40" />
         <div className="relative h-full max-w-7xl mx-auto px-6 grid md:grid-cols-2 items-center gap-8">
           {/* readout panel */}
@@ -97,7 +97,7 @@ export default function ScrollScene() {
             </h2>
             <div className="space-y-3">
               {stages.map((s, i) => {
-                const on = isMobile || stage === i
+                const on = stage === i
                 return (
                   <div
                     key={s.no}
@@ -220,11 +220,9 @@ export default function ScrollScene() {
           </div>
         </div>
 
-        {!isMobile && (
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-widest text-fog/50">
-            SCROLL TO DESCEND ↓
-          </div>
-        )}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-widest text-fog/50">
+          SCROLL TO DESCEND ↓
+        </div>
       </div>
     </section>
   )

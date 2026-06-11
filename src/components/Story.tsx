@@ -72,7 +72,7 @@ export default function Story() {
           className="act relative min-h-screen flex items-center border-t border-steel/40 overflow-hidden"
         >
           <div
-            className="act-img absolute inset-0 bg-cover bg-center opacity-25"
+            className="act-img absolute inset-x-0 -top-[15%] -bottom-[15%] bg-cover bg-center opacity-25"
             style={{ backgroundImage: `url(${act.img})` }}
           />
           <div
